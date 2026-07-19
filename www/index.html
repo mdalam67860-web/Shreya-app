@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Shreya</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <div id="bgParticles" class="bg-particles"></div>
+
+  <!-- Setup screen: shown only first time to collect free API key -->
+  <div id="setupScreen" class="screen">
+    <div class="setup-card">
+      <div class="setup-glow"></div>
+      <h1 class="setup-title">श्रेया</h1>
+      <p class="setup-sub">Shuru karne ke liye apni free Gemini API key daalo</p>
+      <input type="text" id="apiKeyInput" placeholder="Gemini API key yahan paste karo" autocomplete="off">
+      <button id="saveKeyBtn">Shuru Karo</button>
+      <a href="https://aistudio.google.com/apikey" target="_blank" class="setup-link">Free key yahan se lo →</a>
+    </div>
+  </div>
+
+  <!-- Main app screen -->
+  <div id="mainScreen" class="screen hidden">
+
+    <div class="topbar">
+      <span id="topbarName" class="topbar-name">Shreya</span>
+      <button id="settingsBtn" class="icon-btn" aria-label="Settings">⚙</button>
+    </div>
+
+    <div class="stage">
+      <div id="orb" class="orb">
+        <div class="orb-core"></div>
+        <div class="ring ring1"></div>
+        <div class="ring ring2"></div>
+        <div class="ring ring3"></div>
+      </div>
+      <p id="statusText" class="status-text">Tap karke bolo</p>
+    </div>
+
+    <div id="transcript" class="transcript"></div>
+
+    <div class="controls">
+      <button id="micBtn" class="mic-btn" aria-label="Bolo">
+        <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor">
+          <path d="M12 15a3 3 0 0 0 3-3V6a3 3 0 0 0-6 0v6a3 3 0 0 0 3 3z"/>
+          <path d="M19 11a7 7 0 0 1-14 0H3a9 9 0 0 0 8 8.94V22h2v-2.06A9 9 0 0 0 21 11h-2z"/>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Settings modal -->
+  <div id="settingsModal" class="modal hidden">
+    <div class="modal-card">
+      <h2>Settings</h2>
+      <label>API Key</label>
+      <input type="text" id="apiKeyInputSettings">
+      <label>Awaaz (Voice)</label>
+      <select id="voiceSelect"></select>
+      <div class="modal-actions">
+        <button id="closeSettingsBtn">Band Karo</button>
+        <button id="resetChatBtn" class="danger">Chat Reset</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Owner PIN modal (title ko 5 baar tap karke khulta hai) -->
+  <div id="ownerPinModal" class="modal hidden">
+    <div class="modal-card">
+      <h2>Owner Access</h2>
+      <label>PIN daalo</label>
+      <input type="password" id="ownerPinInput" inputmode="numeric" placeholder="****">
+      <div class="modal-actions">
+        <button id="ownerPinCancel">Cancel</button>
+        <button id="ownerPinSubmit" class="danger">Enter</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Owner-only panel -->
+  <div id="ownerPanel" class="modal hidden">
+    <div class="modal-card">
+      <h2>Owner Panel</h2>
+      <label>Extra instructions Shreya ko (sirf owner de sakta hai)</label>
+      <input type="text" id="ownerNoteInput" placeholder="jaise: hamesha mujhe 'jaan' bulao">
+      <div class="modal-actions">
+        <button id="ownerPanelClose">Band Karo</button>
+        <button id="ownerPanelSave" class="danger">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>
