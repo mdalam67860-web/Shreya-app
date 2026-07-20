@@ -112,7 +112,20 @@ function loadVoices() {
   speechSynthesis.onvoiceschanged = populate;
 }
 
+const NativeSTT = window.Capacitor?.Plugins?.SpeechRecognition || null;
+const NativeTTS = window.Capacitor?.Plugins?.TextToSpeech || null;
+
 function setupSpeechRecognition() {
+  if (NativeSTT) {
+    NativeSTT.addListener('partialResults', (data) => {
+      if (data.matches && data.matches.length) {
+        const text = data.matches[0];
+        addMessage('me', text);
+        sendToShreya(text);
+      }
+    });
+    return;
+  }
   const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
     statusText.textContent = 'Is browser mein voice support nahi hai';
@@ -122,7 +135,6 @@ function setupSpeechRecognition() {
   recognition.lang = 'hi-IN';
   recognition.interimResults = false;
   recognition.maxAlternatives = 1;
-
   recognition.onstart = () => {
     isListening = true;
     orb.classList.add('listening');
@@ -130,20 +142,17 @@ function setupSpeechRecognition() {
     statusText.textContent = 'Sun rahi hoon...';
     requestWakeLock();
   };
-
   recognition.onend = () => {
     isListening = false;
     orb.classList.remove('listening');
     micBtn.classList.remove('active');
   };
-
   recognition.onerror = () => {
     isListening = false;
     orb.classList.remove('listening');
     micBtn.classList.remove('active');
     statusText.textContent = 'Kuch samajh nahi aaya, phir try karo';
   };
-
   recognition.onresult = (event) => {
     const text = event.results[0][0].transcript;
     addMessage('me', text);
@@ -151,7 +160,52 @@ function setupSpeechRecognition() {
   };
 }
 
-micBtn.addEventListener('click', () => {
+async function startNativeListening() {
+  try {
+    const { available } = await NativeSTT.available();
+    if (!available) {
+      statusText.textContent = 'Is phone mein voice support nahi hai';
+      return;
+    }
+    const perm = await NativeSTT.requestPermissions();
+    if (perm.speechRecognition !== 'granted') {
+      statusText.textContent = 'Mic permission allow karo settings mein';
+      return;
+    }
+    isListening = true;
+    orb.classList.add('listening');
+    micBtn.classList.add('active');
+    statusText.textContent = 'Sun rahi hoon...';
+    requestWakeLock();
+    await NativeSTT.start({
+      language: 'hi-IN',
+      maxResults: 1,
+      prompt: 'Bolo...',
+      partialResults: true,
+      popup: false
+    });
+  } catch (e) {
+    console.error(e);
+    statusText.textContent = 'Kuch samajh nahi aaya, phir try karo';
+  } finally {
+    isListening = false;
+    orb.classList.remove('listening');
+    micBtn.classList.remove('active');
+  }
+}
+
+micBtn.addEventListener('click', async () => {
+  if (NativeSTT) {
+    if (isListening) {
+      await NativeSTT.stop();
+      isListening = false;
+      orb.classList.remove('listening');
+      micBtn.classList.remove('active');
+    } else {
+      startNativeListening();
+    }
+    return;
+  }
   if (!recognition) return;
   speechSynthesis.cancel();
   if (isListening) {
@@ -159,6 +213,19 @@ micBtn.addEventListener('click', () => {
   } else {
     recognition.start();
   }
+});
+
+const textInput = document.getElementById('textInput');
+const sendBtn = document.getElementById('sendBtn');
+sendBtn.addEventListener('click', () => {
+  const val = textInput.value.trim();
+  if (!val) return;
+  addMessage('me', val);
+  sendToShreya(val);
+  textInput.value = '';
+});
+textInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') sendBtn.click();
 });
 
 function addMessage(who, text) {
@@ -213,7 +280,27 @@ async function sendToShreya(userText) {
   }
 }
 
-function speak(text) {
+async function speak(text) {
+  if (NativeTTS) {
+    orb.classList.add('speaking');
+    statusText.textContent = 'Shreya bol rahi hai...';
+    try {
+      await NativeTTS.speak({
+        text: text,
+        lang: 'hi-IN',
+        rate: 1.0,
+        pitch: 1.15,
+        volume: 1.0,
+        category: 'ambient'
+      });
+    } catch (e) {
+      console.error(e);
+    }
+    orb.classList.remove('speaking');
+    statusText.textContent = 'Tap karke bolo';
+    releaseWakeLock();
+    return;
+  }
   speechSynthesis.cancel();
   const utter = new SpeechSynthesisUtterance(text);
   const voices = speechSynthesis.getVoices();
