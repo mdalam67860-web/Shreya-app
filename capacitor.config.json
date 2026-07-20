@@ -1,13 +1,15 @@
 {
-  "appId": "com.shreya.app",
-  "appName": "Shreya",
-  "webDir": "www",
-  "server": {
-    "androidScheme": "https"
+  "dependencies": {
+    "@capacitor/android": "7.0.0",
+    "@capacitor/app": "^7.0.0",
+    "@capacitor/core": "7.0.0",
+    "@capacitor/haptics": "^7.0.0",
+    "@capacitor/keyboard": "^7.0.0",
+    "@capacitor/status-bar": "^7.0.0",
+    "@capacitor/splash-screen": "^7.0.0",
+    "@capacitor/text-to-speech": "^7.0.0"
   },
-  "plugins": {
-    "SplashScreen": {
-      "launchShowDuration": 0
-    }
+  "devDependencies": {
+    "@capacitor/cli": "7.0.0"
   }
 }
